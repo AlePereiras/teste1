@@ -1,36 +1,65 @@
 const tableBodyElement = document.querySelector('#userTable tbody');
+const paginationElement = document.querySelector('.pagination');
 
-fetch('https://randomuser.me/api/?results=10&nat=BR')
-  .then(response => response.json())
-  .then(data => {
-    const users = data.results;
-    users.forEach(user => {
-      const row = document.createElement('tr');
-      const photoCell = document.createElement('td');
-      const nameCell = document.createElement('td');
-      const emailCell = document.createElement('td');
-      const phoneCell = document.createElement('td');
-      const cityCell = document.createElement('td');
-      const countryCell = document.createElement('td');
+const pages = [1, 2, 3];
 
-      const photoImage = document.createElement('img');
-      photoImage.src = user.picture.medium;
-      photoCell.appendChild(photoImage);
+function fetchUsers(page) {
+  fetch(`https://randomuser.me/api/?results=10&nat=BR&seed=abc&page=${page}`)
+    .then(response => response.json())
+    .then(data => {
+      const users = data.results;
+      tableBodyElement.innerHTML = '';
 
-      nameCell.textContent = `${user.name.first} ${user.name.last}`;
-      emailCell.textContent = user.email;
-      phoneCell.textContent = user.phone;
-      cityCell.textContent = user.location.city;
-      countryCell.textContent = user.location.country;
+      users.forEach(user => {
+        const row = document.createElement('tr');
+        const photoCell = document.createElement('td');
+        const nameCell = document.createElement('td');
+        const emailCell = document.createElement('td');
+        const phoneCell = document.createElement('td');
+        const cityCell = document.createElement('td');
+        const countryCell = document.createElement('td');
 
-      row.appendChild(photoCell);
-      row.appendChild(nameCell);
-      row.appendChild(emailCell);
-      row.appendChild(phoneCell);
-      row.appendChild(cityCell);
-      row.appendChild(countryCell);
+        const photoImage = document.createElement('img');
+        photoImage.src = user.picture.medium;
+        photoCell.appendChild(photoImage);
 
-      tableBodyElement.appendChild(row);
+        nameCell.textContent = `${user.name.first} ${user.name.last}`;
+        emailCell.textContent = user.email;
+        phoneCell.textContent = user.phone;
+        cityCell.textContent = user.location.city;
+        countryCell.textContent = user.location.country;
+
+        row.appendChild(photoCell);
+        row.appendChild(nameCell);
+        row.appendChild(emailCell);
+        row.appendChild(phoneCell);
+        row.appendChild(cityCell);
+        row.appendChild(countryCell);
+
+        tableBodyElement.appendChild(row);
+      });
+    })
+    .catch(error => {
+      console.error('Ocorreu um erro ao buscar os usuários:', error);
     });
-  })
+}
 
+function createButton(page) {
+  const button = document.createElement('button');
+  button.textContent = `Página ${page}`;
+
+  button.addEventListener('click', () => {
+    fetchUsers(page);
+  });
+
+  return button;
+}
+
+// Criar os botões para cada página
+pages.forEach(page => {
+  const button = createButton(page);
+  paginationElement.appendChild(button);
+});
+
+// Buscar usuários na primeira página por padrão
+fetchUsers(1);
